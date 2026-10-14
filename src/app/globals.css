@@ -1,0 +1,200 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --paper: #f3f7f6;
+  --mist: #e7efed;
+  --line: #c9d8d4;
+  --ink: #0b2a32;
+  --ink-soft: #143b45;
+  --muted: #5a7278;
+  --teal: #1f7a72;
+  --signal: #d8f06a;
+  --signal-soft: #e6f69a;
+  --radar-glow: rgba(31, 122, 114, 0.18);
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: #ffffff;
+  --card-foreground: var(--ink);
+  --popover: #ffffff;
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: var(--mist);
+  --secondary-foreground: var(--ink);
+  --muted-foreground: var(--muted);
+  --accent: var(--mist);
+  --accent-foreground: var(--ink);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--teal);
+  --radius: 0.7rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-display);
+  --color-sidebar-ring: var(--ring);
+  --color-sidebar-border: var(--border);
+  --color-sidebar-accent-foreground: var(--accent-foreground);
+  --color-sidebar-accent: var(--accent);
+  --color-sidebar-primary-foreground: var(--primary-foreground);
+  --color-sidebar-primary: var(--primary);
+  --color-sidebar-foreground: var(--foreground);
+  --color-sidebar: var(--background);
+  --color-chart-5: var(--ink);
+  --color-chart-4: var(--ink-soft);
+  --color-chart-3: var(--teal);
+  --color-chart-2: var(--muted);
+  --color-chart-1: var(--signal);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--mist);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background:
+      radial-gradient(1200px 500px at 80% -10%, var(--radar-glow), transparent 60%),
+      radial-gradient(900px 420px at 10% 0%, rgba(216, 240, 106, 0.16), transparent 55%),
+      linear-gradient(180deg, #eef5f3 0%, var(--paper) 38%, #eef3f2 100%);
+    color: var(--foreground);
+    font-family: var(--font-body), "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+}
+
+@keyframes sweep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.55;
+  }
+  70% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+}
+
+.hero-radar {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-radar::before {
+  content: "";
+  position: absolute;
+  right: -8%;
+  top: 10%;
+  width: min(62vw, 560px);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background:
+    repeating-radial-gradient(
+      circle at center,
+      transparent 0 28px,
+      rgba(11, 42, 50, 0.08) 28px 29px
+    );
+  mask-image: radial-gradient(circle at center, black 35%, transparent 72%);
+}
+
+.hero-radar__sweep {
+  position: absolute;
+  right: -8%;
+  top: 10%;
+  width: min(62vw, 560px);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background: conic-gradient(
+    from 210deg,
+    transparent 0deg,
+    rgba(216, 240, 106, 0.28) 38deg,
+    transparent 70deg
+  );
+  animation: sweep 9s linear infinite;
+  mix-blend-mode: multiply;
+  opacity: 0.85;
+}
+
+.animate-rise {
+  animation: rise-in 0.7s ease-out both;
+}
+
+.animate-rise-delay {
+  animation: rise-in 0.8s ease-out 0.12s both;
+}
+
+.animate-rise-delay-2 {
+  animation: rise-in 0.85s ease-out 0.24s both;
+}
+
+.signal-dot {
+  position: relative;
+}
+
+.signal-dot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 1px solid rgba(216, 240, 106, 0.8);
+  animation: pulse-ring 2.2s ease-out infinite;
+}

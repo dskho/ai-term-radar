@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://xinci-radar.demo/schemas/daily-report.json",
+  "title": "AI 新词 SEO 雷达日报",
+  "type": "object",
+  "required": ["id", "title", "date", "generatedAt", "summary", "terms"],
+  "properties": {
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "date": { "type": "string", "format": "date" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "summary": { "type": "string" },
+    "highlight": { "type": "string" },
+    "methodology": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "terms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "term",
+          "signal",
+          "starsPerDay",
+          "momentum",
+          "decision",
+          "seoAngle",
+          "why"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "term": { "type": "string" },
+          "aliases": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "signal": {
+            "type": "string",
+            "enum": ["GitHub 爆发", "HF 趋势", "模型发布", "产品上线", "社区扩散"]
+          },
+          "starsPerDay": { "type": "number" },
+          "momentum": { "type": "number", "minimum": 0, "maximum": 100 },
+          "firstSeen": { "type": "string" },
+          "sources": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "why": { "type": "string" },
+          "seoAngle": { "type": "string" },
+          "decision": {
+            "type": "string",
+            "enum": ["优先布局", "观察", "跳过"]
+          },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      }
+    }
+  }
+}

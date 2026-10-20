@@ -1,10 +1,6 @@
-import { mkdir, appendFile, readFile } from "node:fs/promises";
-import path from "node:path";
 import { NextResponse } from "next/server";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const STORE_DIR = path.join(process.cwd(), "data");
-const STORE_FILE = path.join(STORE_DIR, "waitlist.jsonl");
 
 type WaitlistBody = {
   email?: string;
@@ -12,6 +8,11 @@ type WaitlistBody = {
   source?: string;
 };
 
+/**
+ * Waitlist persistence is webhook-only (Formspree / Make / CRM).
+ * Obsidian notes are written by Grok Bot from Formspree email — not by this app.
+ * No Google Drive service-account writes.
+ */
 export async function POST(request: Request) {
   let body: WaitlistBody;
 
@@ -35,6 +36,17 @@ export async function POST(request: Request) {
     );
   }
 
+  const webhook = process.env.WAITLIST_WEBHOOK_URL?.trim();
+  if (!webhook) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "候补名单未配置：缺少 WAITLIST_WEBHOOK_URL",
+      },
+      { status: 500 },
+    );
+  }
+
   const entry = {
     email,
     role,
@@ -42,55 +54,41 @@ export async function POST(request: Request) {
     createdAt: new Date().toISOString(),
   };
 
-  const webhook = process.env.WAITLIST_WEBHOOK_URL;
-
-  if (webhook) {
-    try {
-      await fetch(webhook, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(entry),
-      });
-    } catch (error) {
-      console.error("waitlist webhook failed", error);
-    }
-  }
-
   try {
-    await mkdir(STORE_DIR, { recursive: true });
-    await appendFile(STORE_FILE, `${JSON.stringify(entry)}\n`, "utf8");
-  } catch (error) {
-    console.error("waitlist write failed", error);
-    return NextResponse.json(
-      {
-        ok: true,
-        demo: true,
-        message: webhook
-          ? "已转发候补意向。正式开放时我们会邮件通知你。"
-          : "已记录意向（演示模式：本地写入失败时仍返回成功，请检查写权限或设置 WAITLIST_WEBHOOK_URL）。",
-        entry,
+    const response = await fetch(webhook, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
       },
-      { status: 200 },
+      body: JSON.stringify(entry),
+    });
+
+    if (!response.ok) {
+      const detail = await response.text().catch(() => "");
+      console.error("waitlist webhook failed", response.status, detail);
+      return NextResponse.json(
+        { ok: false, error: "候补提交失败，请稍后重试" },
+        { status: 502 },
+      );
+    }
+  } catch (error) {
+    console.error("waitlist webhook failed", error);
+    return NextResponse.json(
+      { ok: false, error: "候补提交失败，请稍后重试" },
+      { status: 502 },
     );
   }
 
   return NextResponse.json({
     ok: true,
-    demo: true,
     message: "已加入候补名单。正式开放时我们会邮件通知你。",
-    entry,
   });
 }
 
 export async function GET() {
-  try {
-    const raw = await readFile(STORE_FILE, "utf8");
-    const count = raw
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean).length;
-    return NextResponse.json({ ok: true, count, demo: true });
-  } catch {
-    return NextResponse.json({ ok: true, count: 0, demo: true });
-  }
+  return NextResponse.json({
+    ok: true,
+    configured: Boolean(process.env.WAITLIST_WEBHOOK_URL?.trim()),
+  });
 }

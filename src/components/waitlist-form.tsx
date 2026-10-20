@@ -168,11 +168,7 @@ export function WaitlistForm({
           {status === "loading" ? "提交中…" : "加入候补名单"}
         </button>
         <p className="text-xs leading-relaxed text-[var(--muted)]">
-          Demo 模式：邮箱写入本地{" "}
-          <code className="rounded bg-[var(--mist)] px-1 py-0.5">
-            data/waitlist.jsonl
-          </code>
-          ，无需第三方密钥。
+          提交后经 webhook 转发到候补渠道；正式开放时邮件通知你。
         </p>
       </div>
 

@@ -17,7 +17,7 @@
 | `/` | 落地页：价值主张、受众、示例表、草案定价、候补名单 |
 | `/report/demo` | 完整示例日报 |
 | `/pricing` | 草案定价 + 候补（不可购卡） |
-| `POST /api/waitlist` | 邮箱写入 `data/waitlist.jsonl`（演示模式） |
+| `POST /api/waitlist` | 将邮箱 POST 到 `WAITLIST_WEBHOOK_URL`（必需；缺失或失败返回非 2xx） |
 | `POST /api/checkout` | **冻结**：始终 `charged: false`，引导 `/#waitlist` |
 
 ## 本地运行
@@ -38,11 +38,13 @@ npm run dev -- --port 43123
 
 ## 环境变量
 
-复制 `.env.example` 为 `.env.local`（可选）：
+复制 `.env.example` 为 `.env.local`：
 
 | 变量 | 必需 | 说明 |
 |------|------|------|
-| `WAITLIST_WEBHOOK_URL` | 否 | 可选：把候补 POST 转发到 Formspree / Make / 自有 CRM |
+| `WAITLIST_WEBHOOK_URL` | **是** | Formspree / Make / 自有 CRM 的 webhook URL。未设置或转发失败时 API 返回非 2xx |
+
+候补名单**只**走 webhook。Obsidian 由 Grok Bot 从 Formspree 邮件写入，本应用不写 Google Drive / 不写本地 `waitlist.jsonl`。
 
 `STRIPE_*` / `NEXT_PUBLIC_LEMON_*` 即使配置也会被忽略（支付冻结）。
 
@@ -50,14 +52,11 @@ npm run dev -- --port 43123
 
 1. 将本仓库推送到 GitHub / Origin，并在 [Vercel](https://vercel.com) Import Project。
 2. Framework Preset 选 **Next.js**；Build Command `npm run build`；Output 保持默认。
-3. （可选）设置 `WAITLIST_WEBHOOK_URL`。
-4. Deploy。生产环境若需持久化候补名单，请：
-   - 把 `POST /api/waitlist` 改为写入 Vercel KV / Postgres / Formspree，或
-   - 设置 `WAITLIST_WEBHOOK_URL` 转发（本地文件 `data/waitlist.jsonl` 在 Serverless 上不可靠）。
+3. **必须**设置 `WAITLIST_WEBHOOK_URL`（例如 Formspree endpoint），否则候补提交会返回 500。
+4. Deploy。
 
 ### 一键注意
 
-- `data/waitlist.jsonl` 已在 `.gitignore` 中忽略，避免把用户邮箱提交进仓库。
 - 中国大陆访问 Google Fonts 可能偏慢；生产可改为自托管 `Noto Sans SC` / `Space Grotesk`。
 - `next.config.ts` 关闭了 `cacheComponents`，以保证候补表单客户端交互可水合。
 

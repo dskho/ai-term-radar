@@ -221,11 +221,11 @@ export default function HomePage() {
               正式日报开放时，优先通知你
             </h2>
             <p className="mt-3 text-[var(--muted)]">
-              留下工作邮箱。Demo 模式写入本仓库{" "}
+              留下工作邮箱。意向经{" "}
               <code className="rounded bg-[var(--mist)] px-1.5 py-0.5 text-sm">
-                data/waitlist.jsonl
-              </code>
-              ；上线后可改接 Formspree、Resend 或自有 CRM。
+                WAITLIST_WEBHOOK_URL
+              </code>{" "}
+              转发（如 Formspree）；正式开放时优先通知你。
             </p>
           </div>
           <div className="rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-5 sm:p-6">
